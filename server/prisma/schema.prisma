@@ -36,6 +36,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   prompts Prompt[]
+  generations Generation[]
 }
 
 // Prompt model
@@ -48,5 +49,21 @@ model Prompt {
   visibility Visibility @default(PRIVATE)
   createdAt DateTime @default(now())
 
+  user User @relation(fields: [userId], references: [id])
+  generations Generation[]
+}
+
+// Generation model
+
+model Generation {
+  id String @id @default(uuid())
+  promptId String
+  userId String
+  modelUsed String
+  response Json
+  tokensUsed Int?
+  createdAt DateTime @default(now())
+
+  prompt Prompt @relation(fields: [promptId], references: [id])
   user User @relation(fields: [userId], references: [id])
 }
