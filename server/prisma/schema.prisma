@@ -37,9 +37,12 @@ model User {
 
   prompts Prompt[]
   generations Generation[]
+  sessions Session[]
+  usage Usage?
 }
 
 // Prompt model
+// Stores what user typed (Eg : "Football", "Tech")
 
 model Prompt {
   id String @id @default(uuid())
@@ -51,9 +54,11 @@ model Prompt {
 
   user User @relation(fields: [userId], references: [id])
   generations Generation[]
+  tags PromptTag[]
 }
 
 // Generation model
+// Stores AI responses linked to prompts.
 
 model Generation {
   id String @id @default(uuid())
@@ -61,9 +66,49 @@ model Generation {
   userId String
   modelUsed String
   response Json
+  // response stored as JSON -> allows structured output (headings, sections, flashcards, etc)
   tokensUsed Int?
   createdAt DateTime @default(now())
 
   prompt Prompt @relation(fields: [promptId], references: [id])
   user User @relation(fields: [userId], references: [id])
+}
+
+// Tags System (categorization)
+
+model Tag {
+  id String @id @default(uuid())
+  name String @unique
+
+  prompts PromptTag[]
+}
+
+model PromptTag {
+  promptId String
+  tagId String
+
+  prompt Prompt @relation(fields: [promptId], references: [id])
+  tag Tag @relation(fields: [tagId], references: [id])
+
+  @@id([promptId, tagId])
+}
+
+model Session {
+  id         String   @id @default(uuid())
+  userId     String
+  refreshToken String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  user       User @relation(fields: [userId], references: [id])
+}
+
+model Usage {
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  totalPrompts  Int     @default(0)
+  totalTokens   Int     @default(0)
+  lastActiveAt  DateTime?
+
+  user          User    @relation(fields: [userId], references: [id])
 }
