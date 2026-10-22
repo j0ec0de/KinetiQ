@@ -17,11 +17,12 @@ kinetiq/
 ├── server/                      # Express API            (auth complete)
 │   ├── prisma/
 │   │   └── schema.prisma        # Postgres data model
-│   ├── prisma.config.ts         # Prisma 7 CLI config (schema + migrations + datasource url)
+│   ├── prisma.config.ts         # Prisma 7 CLI config — the one the CLI actually reads
 │   └── src/
 │       ├── index.ts             # App entry: middleware chain, route mounting
-│       ├── prisma.ts            # PrismaClient singleton (pg adapter + Pool)
-│       ├── generated/prisma/    # Generated client — committed, regenerate on schema change
+│       ├── prisma.ts            # PrismaClient singleton (pg adapter + Pool) — import from here
+│       ├── prisma.config.ts     # ⚠️ divergent duplicate of the above config; nothing imports it
+│       ├── generated/prisma/    # Generated client — gitignored; run `prisma generate` after clone
 │       ├── middleware/          # auth · validate · errorHandler
 │       ├── utils/               # errors · asyncHandler
 │       └── modules/             # One directory per domain
