@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../prisma";
+import { env } from "../../config/env";
 import {
   ConflictException,
   UnauthorizedException,
@@ -8,8 +9,8 @@ import {
 } from "../../utils/errors";
 
 export class AuthService {
-  private jwtAccessSecret = process.env.JWT_ACCESS_SECRET || "access_secret";
-  private jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || "refresh_secret";
+  private jwtAccessSecret = env.jwtAccessSecret;
+  private jwtRefreshSecret = env.jwtRefreshSecret;
 
   /**
    * Registers a brand-new user securely, hashing their password and establishing a usage record.
@@ -120,11 +121,8 @@ export class AuthService {
       };
 
       // 2. Fetch session from the database
-      const session = await prisma.session.findFirst({
-        where: {
-          userId: payload.sub,
-          refreshToken: oldRefreshToken,
-        },
+      const session = await prisma.session.findUnique({
+        where: { refreshToken: oldRefreshToken },
         include: { user: true },
       });
 
@@ -172,7 +170,7 @@ export class AuthService {
    * Deletes a session upon logout to invalidate refresh abilities.
    */
   async logout(refreshToken: string) {
-    const session = await prisma.session.findFirst({
+    const session = await prisma.session.findUnique({
       where: { refreshToken },
     });
 

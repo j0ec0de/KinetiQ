@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../middleware/validate";
+import { authLimiter } from "../../middleware/rateLimit";
 import { registerSchema, loginSchema } from "./auth.schema";
 
 const router = Router();
 const controller = new AuthController();
+
+router.use(authLimiter);
 
 // Authentication Endpoints
 router.post("/register", validateRequest(registerSchema), controller.register);

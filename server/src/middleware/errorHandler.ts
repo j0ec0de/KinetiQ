@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../utils/errors";
+import logger from "../utils/logger";
 
 export const errorHandler = (
   err: Error,
@@ -12,9 +13,9 @@ export const errorHandler = (
   const details = err instanceof HttpException ? err.details : undefined;
 
   // Internal logging (Log error stack in dev environment, or use structured logging in production)
-  console.error(`[Error] ${req.method} ${req.url} - Status: ${statusCode} - Msg: ${message}`);
+  logger.log(statusCode >= 500 ? "error" : "warn", `${req.method} ${req.url} ${statusCode} ${message}`);
   if (statusCode === 500) {
-    console.error(err.stack);
+    logger.error(err.stack ?? message);
   }
 
   res.status(statusCode).json({

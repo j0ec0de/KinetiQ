@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UnauthorizedException } from "../utils/errors";
-import prisma from "../prisma";
+import { env } from "../config/env";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -23,7 +23,7 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
 
   const token = authHeader.split(" ")[1];
   try {
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET || "access_secret") as {
+    const payload = jwt.verify(token, env.jwtAccessSecret) as {
       sub: string;
       email: string;
       role: string;
